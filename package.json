@@ -1,0 +1,21 @@
+{
+  "name": "innoveltask",
+  "version": "1.0.0",
+  "description": "This document details the development of a Self-Finance Management System, a Node.js project undertaken as part of my studies at Innovel Training Center. The system is designed to manage personal finances by tracking income and expenses.",
+  "main": "app.js",
+  "scripts": {
+    "dev": "nodemon app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "body-parser": "^1.20.2",
+    "express": "^4.19.2",
+    "jest": "^29.7.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongodb": "^6.7.0",
+    "nodemon": "^3.1.3"
+  }
+}
