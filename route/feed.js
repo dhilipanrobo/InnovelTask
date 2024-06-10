@@ -7,5 +7,6 @@ const {vallidateSignup,vallidateLogin,authenticateToken} = require('../middlewar
 route.post('/profile/signup',vallidateSignup,controllerFeed.creatUser);
 route.post('/profile/login',vallidateLogin,controllerFeed.loginUser);
 route.get('/profile/protected',authenticateToken,controllerFeed.protected);
+route.post('/finance/transaction',authenticateToken,controllerFeed.transaction);
 
 module.exports = route
