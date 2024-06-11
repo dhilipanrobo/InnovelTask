@@ -53,22 +53,29 @@ exports.transaction = async (req,res)=>{
     const userData = req.body
     const count = await collection.countDocuments()
     userData.tid = count + 1000
+    userData.email = req.user.email
     const dateString = req.body.date;
-const [month, day, year] = dateString.split('/').map(Number);
-const fullYear = year < 50 ? 2000 + year : 1900 + year; // Assumption: Year is in the 21st century if less than 50, otherwise in the 20th century
-const dateObject = new Date(fullYear, month - 1, day);
-userData.date = dateObject
-console.log(dateObject); // Output: 2024-02-11T00:00:00.000Z
-
+    const [month, day, year] = dateString.split('/').map(Number);
+    const fullYear = year < 50 ? 2000 + year : 1900 + year; // Assumption: Year is in the 21st century if less than 50, otherwise in the 20th century
+    const dateObject = new Date(fullYear, month - 1, day);
+    userData.date = dateObject
+    console.log(dateObject); // Output: 2024-02-11T00:00:00.000Z
     const result = collection.insertOne({userData})
     res.status(201).json({status:201,message:'transaction successfully completed'})
-
-
 }
+
+exports.transactionHistoryLast10 = async(req,res)=>{
+    await client.connect
+    const db = client.db(dbName)
+    const collection = db.collection('transaction')
+    console.log('email' + req.user.email);
+    const lastTenTractions = await collection.aggregate([{"$match": {"userData.email": req.user.email}}, { "$sort": {"userData.tid": -1}},{"$limit": 10}]).toArray()
+    res.status(201).json({res:lastTenTractions,message: "transaction successfully completed"})
+      
+}
+
 exports.protected = async (req,res)=>{
     
-    console.log(req.user.name);
+    console.log(req.user.username);
     res.status(201).json({status:201,message:'protected',user:req.user})
-
-
 }
