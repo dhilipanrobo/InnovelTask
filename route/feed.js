@@ -13,5 +13,7 @@ route.get('/report/transaction/history/last10',authenticateToken,controllerFeed.
 route.get('/report/transaction/totalamount',authenticateToken,controllerFeed.totalAmount);
 route.get('/report/transaction/totalamount',authenticateToken,controllerFeed.totalAmount);
 route.get('/report/transaction/filter-by-date',authenticateToken,controllerFeed.filterByDate)
+route.put('/finance/transaction/update',authenticateToken,controllerFeed.updatetransaction)
+
 
 module.exports = route

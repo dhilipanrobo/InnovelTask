@@ -63,7 +63,7 @@ exports.transaction = async (req,res)=>{
     const [day, month, year] = dateString.split('/');
     const date = new Date(`${20}${year}-${month}-${day}`);
     userData.date = date
-    const result = collection.insertOne({userData})
+    const result = await collection.insertOne({userData})
     res.status(201).json({status:201,message:'transaction successfully completed'})
 }
 
@@ -89,7 +89,6 @@ exports.totalAmount = async(req,res)=>{
 exports.forgotPassword = async(req,res)=> {
     await client.connect
     const db = client.db(dbName)
-    const collection = db.collection('transaction')
     const subject = 'Password Reset OTP';
     const otp = '1234'
     const text = `Your OTP for password reset is: ${otp}`;
@@ -113,6 +112,22 @@ exports.filterByDate = async (req,res)=>{
     
     const result = await collection.find({"userData.email": email,"userData.date":{ $gte: sdate,$lte:edate}}).toArray()
     res.status(201).json({status:201,message:'transaction successfully completed',data:result})
+}
+
+exports.updatetransaction = async (req,res)=>{
+    await client.connect
+    const db = client.db(dbName)
+    const collection = db.collection('transaction')
+    const userData = req.body
+    const tid = req.query.tid
+    const email = req.user.email
+    const dateString = req.body.date;
+    const [day, month, year] = dateString.split('/');
+    const date = new Date(`${20}${year}-${month}-${day}`);
+    userData.date = date
+    console.log(tid);
+    const result = await collection.updateOne({"userData.email":email,"userData.tid": 1003},{$set:{'userData.type': userData.type ,'userData.amount':userData.amount,'userData.description':userData.description}})
+    res.status(201).json({status:201,message:'transaction successfully completed',result:(await result).modifiedCount})
 }
 
 
