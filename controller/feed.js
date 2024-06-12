@@ -102,7 +102,7 @@ exports.filterByDate = async (req,res)=>{
     const db = client.db(dbName)
     const collection = db.collection('transaction')
     const userData = req.body
-    userData.email = req.user.email
+    const email = req.user.email
     const startDate = req.query.startdate;
     const endtDate = req.query.enddate;
     
@@ -111,7 +111,7 @@ exports.filterByDate = async (req,res)=>{
     const [eday, emonth, eyear] = endtDate.split('/');
     const edate = new Date(`${20}${eyear}-${emonth}-${eday}`);
     
-    const result = await collection.find({"userData.email": "dhilipanpyro@gmai.com","userData.date":{ $gte: sdate,$lte:edate}}).toArray()
+    const result = await collection.find({"userData.email": email,"userData.date":{ $gte: sdate,$lte:edate}}).toArray()
     res.status(201).json({status:201,message:'transaction successfully completed',data:result})
 }
 
