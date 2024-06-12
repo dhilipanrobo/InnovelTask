@@ -6,6 +6,11 @@ const saltRound = 10
 const url = "mongodb://localhost:27017"
 const dbName = "financeManagement"
 const SECRET_KEY = 'password-is-password'; 
+const  nodemailer = require('nodemailer');
+const sgTransport = require('nodemailer-sendgrid-transport');
+const sendMail = require('../utils/email');
+
+
 
 const client = new MongoClient(url, { useNewUrlParser: true, useUnifiedTopology: true });
 
@@ -55,11 +60,9 @@ exports.transaction = async (req,res)=>{
     userData.tid = count + 1000
     userData.email = req.user.email
     const dateString = req.body.date;
-    const [month, day, year] = dateString.split('/').map(Number);
-    const fullYear = year < 50 ? 2000 + year : 1900 + year; // Assumption: Year is in the 21st century if less than 50, otherwise in the 20th century
-    const dateObject = new Date(fullYear, month - 1, day);
-    userData.date = dateObject
-    console.log(dateObject); // Output: 2024-02-11T00:00:00.000Z
+    const [day, month, year] = dateString.split('/');
+    const date = new Date(`${20}${year}-${month}-${day}`);
+    userData.date = date
     const result = collection.insertOne({userData})
     res.status(201).json({status:201,message:'transaction successfully completed'})
 }
@@ -73,6 +76,47 @@ exports.transactionHistoryLast10 = async(req,res)=>{
     res.status(201).json({res:lastTenTractions,message: "transaction successfully completed"})
       
 }
+exports.totalAmount = async(req,res)=>{
+    await client.connect
+    const db = client.db(dbName)
+    const collection = db.collection('transaction')
+    console.log('email' + req.user.email);
+    const lastTenTractions = await collection.aggregate([{"$match": {"userData.email": "dhilipan@gmai.com"}},{ "$group": { "_id": {"email": "$userData.email", "accountType": "$userData.type"},"totalAmount":{"$sum":"$userData.amount"}}},
+    {"$project":{"_id":0,"email": "$_id.email", "accountType": "$_id.accountType","totalAmount": "$totalAmount"}}]).toArray()
+    res.status(201).json({res:lastTenTractions,message: "transaction successfully completed"})
+      
+}
+exports.forgotPassword = async(req,res)=> {
+    await client.connect
+    const db = client.db(dbName)
+    const collection = db.collection('transaction')
+    const subject = 'Password Reset OTP';
+    const otp = '1234'
+    const text = `Your OTP for password reset is: ${otp}`;
+
+    await sendMail("dhilipanpyro@gmail.com", subject, text);
+    res.status(201).json({message: "transaction successfully completed"})
+}
+exports.filterByDate = async (req,res)=>{
+    await client.connect
+    const db = client.db(dbName)
+    const collection = db.collection('transaction')
+    const userData = req.body
+    userData.email = req.user.email
+    const startDate = req.query.startdate;
+    const endtDate = req.query.enddate;
+    
+    const [sday,smonth, syear] = startDate.split('/');
+    const sdate = new Date(`${20}${syear}-${smonth}-${sday}`);
+    const [eday, emonth, eyear] = endtDate.split('/');
+    const edate = new Date(`${20}${eyear}-${emonth}-${eday}`);
+    
+    const result = await collection.find({"userData.email": "dhilipanpyro@gmai.com","userData.date":{ $gte: sdate,$lte:edate}}).toArray()
+    res.status(201).json({status:201,message:'transaction successfully completed',data:result})
+}
+
+
+
 
 exports.protected = async (req,res)=>{
     
