@@ -1,5 +1,6 @@
 const {MongoClient,ObjectId} = require('mongodb')
 const bcrypt = require ('bcrypt')
+const crypto = require('crypto');
 const jwt = require('jsonwebtoken')
 const { status } = require('express/lib/response')
 const saltRound = 10
@@ -88,12 +89,11 @@ exports.totalAmount = async(req,res)=>{
 }
 exports.forgotPassword = async(req,res)=> {
     await client.connect
-    const db = client.db(dbName)
+    const email = req.body.email
     const subject = 'Password Reset OTP';
-    const otp = '1234'
+    const otp = generateOtp()
     const text = `Your OTP for password reset is: ${otp}`;
-
-    await sendMail("dhilipanpyro@gmail.com", subject, text);
+    await sendMail(email, subject, text);
     res.status(201).json({message: "transaction successfully completed"})
 }
 exports.filterByDate = async (req,res)=>{
@@ -126,11 +126,14 @@ exports.updatetransaction = async (req,res)=>{
     const date = new Date(`${20}${year}-${month}-${day}`);
     userData.date = date
     console.log(tid);
-    const result = await collection.updateOne({"userData.email":email,"userData.tid": 1003},{$set:{'userData.type': userData.type ,'userData.amount':userData.amount,'userData.description':userData.description}})
+    const result = await collection.updateOne({"userData.email":email,"userData.tid": tid},{$set:{'userData.type': userData.type ,'userData.amount':userData.amount,'userData.description':userData.description}})
     res.status(201).json({status:201,message:'transaction successfully completed',result:(await result).modifiedCount})
 }
 
-
+function generateOtp() {
+    const otp = crypto.randomInt(100000, 999999).toString();
+    return otp;
+  }
 
 
 exports.protected = async (req,res)=>{
