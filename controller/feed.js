@@ -82,7 +82,7 @@ exports.totalAmount = async(req,res)=>{
     const db = client.db(dbName)
     const collection = db.collection('transaction')
     console.log('email' + req.user.email);
-    const lastTenTractions = await collection.aggregate([{"$match": {"userData.email": "dhilipan@gmai.com"}},{ "$group": { "_id": {"email": "$userData.email", "accountType": "$userData.type"},"totalAmount":{"$sum":"$userData.amount"}}},
+    const lastTenTractions = await collection.aggregate([{"$match": {"userData.email": req.user.email}},{ "$group": { "_id": {"email": "$userData.email", "accountType": "$userData.type"},"totalAmount":{"$sum":"$userData.amount"}}},
     {"$project":{"_id":0,"email": "$_id.email", "accountType": "$_id.accountType","totalAmount": "$totalAmount"}}]).toArray()
     res.status(201).json({res:lastTenTractions,message: "transaction successfully completed"})
       
@@ -137,7 +137,6 @@ function generateOtp() {
 
 
 exports.protected = async (req,res)=>{
-    
     console.log(req.user.username);
     res.status(201).json({status:201,message:'protected',user:req.user})
 }
